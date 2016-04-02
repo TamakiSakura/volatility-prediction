@@ -14,6 +14,7 @@ def topic_from_lda(X_train, X_test, n_topics, n_iter):
     return X_reduce_train, X_reduce_test
 
 def topic_from_LSI(X_train, X_test, n_topics):
+    U, S, V = np.linalg.svd(X_train)
     pass
 
 def combine_extra_to_train(extra, train):
@@ -39,3 +40,6 @@ def involk_svr(X_total_train, Y_train, X_total_test, Y_test):
     svr_poly.fit(X_total_train, Y_train)
     result = svr_poly.predict(X_total_test)
     return metrics.mean_squared_error(result, Y_test)
+
+def baseline(Y_train, Y_test):
+    return metrics.mean_squared_error(Y_train, Y_test)
