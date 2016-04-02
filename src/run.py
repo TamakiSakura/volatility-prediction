@@ -73,3 +73,8 @@ mse_V_lda_plus = involk_svr(X_total_train_lda, Y_train, X_total_test_lda, Y_test
 mse_V_log1p_plus = involk_svr(X_total_train_log1p, Y_train, X_total_test_log1p, Y_test)
 
 print(mse_V_minus_12)
+print(mse_V_tf_plus)
+print(mse_V_tfidf_plus)
+print(mse_V_lda)
+print(mse_V_lda_plus)
+print(mse_V_log1p_plus)
