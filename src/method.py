@@ -1,4 +1,5 @@
 import numpy as np
+import scipy
 from sklearn.svm import SVR
 from sklearn import metrics
 from sklearn.feature_extraction.text import TfidfTransformer
@@ -16,13 +17,13 @@ def topic_from_LSI(X_train, X_test, n_topics):
     pass
 
 def combine_extra_to_train(extra, train):
-    return np.concatenate((np.matrix(extra).T, train), axis = 1)
+    return scipy.sparse.hstack([np.matrix(extra).T, train])
 
 def dtm_to_tf(X_train, X_test):
     transformer = TfidfTransformer(norm=None, use_idf = False)
-    tfidf_train = transformer.fit_transform(X_train)
-    tfidf_test = transformer.transform(X_test)
-    return tfidf_train, tfidf_test
+    tf_train = transformer.fit_transform(X_train)
+    tf_test = transformer.transform(X_test)
+    return tf_train, tf_test
 
 def dtm_to_tfidf(X_train, X_test):
     transformer = TfidfTransformer(norm=None, use_idf = True)
