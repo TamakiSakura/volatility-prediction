@@ -20,8 +20,8 @@ def topic_from_LSI(X_train, X_test, n_topics):
     S_hat = S[:n_topics, :n_topics]
     U_hat = U[:, :n_topics]
     S_hat_inverse = np.linalg.inv(S_hat)
-    new_train = np.dot(S_hat_inverse, np.dot(U_hat.T, X_train.T)
-    new_test = np.dot(S_hat_inverse, np.dot(U_hat.T, X_test.T)
+    new_train = np.dot(S_hat_inverse, np.dot(U_hat.T, X_train.T))
+    new_test = np.dot(S_hat_inverse, np.dot(U_hat.T, X_test.T))
     
     return new_train.T, new_test.T
 
