@@ -11,12 +11,12 @@ os.chdir('/Users/hengweiguo/Documents/repo/volatility-prediction/src')
 # X_train and X_test are doc-term matrices
 # X_train_extra and X_test_extra are v-12 volatilities
 # Y's are labels
-X_train_extra, X_train, Y_train, X_test_extra, X_test, Y_test = generate_train_test_set(2006, 2, 0.2)
+X_train_extra, X_train, Y_train, X_test_extra, X_test, Y_test, vocab = generate_train_test_set(2006, 2, 0.2)
 
 # # store the data
-train_test_data = TemporaryFile()
 np.savez('train_test_data', X_train_extra=X_train_extra, X_train=X_train, Y_train=Y_train, X_test_extra=X_test_extra, X_test=X_test, Y_test=Y_test)
-
+with open('vocab.pickle', 'w') as f:
+    pickle.dump([vocab], f)
 
 # # Getting back the objects:
 npzfile = np.load('train_test_data.npz')
@@ -26,6 +26,8 @@ Y_train = npzfile['Y_train'] # doc term mat
 X_test_extra = npzfile['X_test_extra']
 X_test = npzfile['X_test']
 Y_test = npzfile['Y_test']
+with open('vocab.pickle') as f:
+    vocab= pickle.load(f)
 
 n_topics = 20
 n_iter = 200
