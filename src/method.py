@@ -16,7 +16,7 @@ def topic_from_LSI(X_train, X_test, n_topics):
     pass
 
 def combine_extra_to_train(extra, train):
-    return numpy.concatenate((np.matrix(extra).T, train), axis = 1)
+    return np.concatenate((np.matrix(extra).T, train), axis = 1)
 
 def dtm_to_tf(X_train, Y_train):
     transformer = TfidfTransformer(norm=None, use_idf = False)
