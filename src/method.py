@@ -34,7 +34,7 @@ def dtm_to_log1p(X_train, Y_train):
     return np.log(X_train + 1), np.log(Y_train + 1)
 
 def involk_svr(X_total_train, Y_train, X_total_test, Y_test):
-    svr_poly = SVR(kernel='poly', C=1e3, degree=2)
+    svr_poly = SVR(kernel='poly', C=1e-5, degree=2)
     svr_poly.fit(X_total_train, Y_train)
     result = svr_poly.predict(X_total_test)
     return metrics.mean_squared_error(result, Y_test)
