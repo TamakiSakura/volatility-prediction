@@ -41,5 +41,5 @@ def involk_svr(X_total_train, Y_train, X_total_test, Y_test):
     result = svr_poly.predict(X_total_test)
     return metrics.mean_squared_error(result, Y_test)
 
-def baseline(Y_train, Y_test):
-    return metrics.mean_squared_error(Y_train, Y_test)
+def baseline(X_train_extra, Y_test):
+    return metrics.mean_squared_error(X_train_extra, Y_test)

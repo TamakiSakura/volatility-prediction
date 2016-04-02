@@ -28,7 +28,7 @@ X_test = npzfile['X_test']
 Y_test = npzfile['Y_test']
 
 tf_train, tf_test = dtm_to_tf(X_train, X_test)
-# tfidf_train, tfidf_test = dtm_to_tfidf(X_train, X_test)
+tfidf_train, tfidf_test = dtm_to_tfidf(X_train, X_test)
 # log1p_train, log1p_test = dtm_to_log1p(X_train, X_test)
 
 
@@ -36,9 +36,22 @@ tf_train, tf_test = dtm_to_tf(X_train, X_test)
 X_total_train_tf = combine_extra_to_train(X_train_extra, tf_train)
 X_total_test_tf = combine_extra_to_train(X_test_extra, tf_test)
 
+X_total_train_tfidf = combine_extra_to_train(X_train_extra, tfidf_train)
+X_total_test_tfidf = combine_extra_to_train(X_test_extra, tfidf_test)
+
+# X_total_train_log1p = combine_extra_to_train(X_train_extra, log1p_train)
+# X_total_test_log1p = combine_extra_to_train(X_test_extra, log1p_test)
+
 # train and test with the baseline: V-12
-mse_V_minus_12 = involk_svr(X_train_extra, Y_train, X_test_extra, Y_test)
+mse_V_minus_12 = baseline(X_test_extra, Y_test)
 
 # train and test with TF+
 mse_V_tf_plus = involk_svr(X_total_train_tf, Y_train, X_total_test_tf, Y_test)
-#
+
+# train and test with TFIDF+
+mse_V_tfidf_plus = involk_svr(X_total_train_tfidf, Y_train, X_total_test_tfidf, Y_test)
+
+# train and test with log1p+
+# mse_V_log1p_plus = involk_svr(X_total_train_log1p, Y_train, X_total_test_log1p, Y_test)
+
+print(mse_V_minus_12)
