@@ -20,14 +20,14 @@ def combine_extra_to_train(extra, train):
 
 def dtm_to_tf(X_train, X_test):
     transformer = TfidfTransformer(norm=None, use_idf = False)
-    tfidf_X = transformer.fit_transform(X_train)
-    tfidf_Y = transformer.transform(X_test)
+    tfidf_train = transformer.fit_transform(X_train)
+    tfidf_test = transformer.transform(X_test)
     return tfidf_train, tfidf_test
 
 def dtm_to_tfidf(X_train, X_test):
     transformer = TfidfTransformer(norm=None, use_idf = True)
-    tfidf_X = transformer.fit_transform(X_train)
-    tfidf_Y = transformer.transform(X_test)
+    tfidf_train = transformer.fit_transform(X_train)
+    tfidf_test = transformer.transform(X_test)
     return tfidf_train, tfidf_test
 
 def dtm_to_log1p(X_train, X_test):
