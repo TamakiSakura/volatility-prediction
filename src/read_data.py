@@ -56,13 +56,15 @@ def construct_doc_term_matrix(tok_folders, indices):
                 document_last_count += 1
     np_tdm = 0 
     row_index = -1
+    vocab = []
     for row in tm_tdm.rows(cutoff=1):
         if row_index < 0:
             np_tdm = np.zeros(shape=(document_count, len(row)))
+            vocab = row[:]
         else:
             np_tdm[row_index] = row
         row_index += 1
-    return np_tdm, document_last_count
+    return np_tdm, vocab, document_last_count
 
 def generate_train_test_set(pred_year, num_prev_year, proportion):
     '''
@@ -93,11 +95,11 @@ def generate_train_test_set(pred_year, num_prev_year, proportion):
             X_test_extra = read_logvol(str_year + minus_file_name)[index]
             Y_test = read_logvol(str_year + plus_file_name)[index]
 
-    total_X, test_count = construct_doc_term_matrix(tok_folder, indices)
+    total_X, vocab, test_count = construct_doc_term_matrix(tok_folder, indices)
     X_train = total_X[:-test_count]
     X_test = total_X[-test_count:]
     
-    return X_train_extra, X_train, Y_train, X_test_extra, X_test, Y_test
+    return X_train_extra, X_train, Y_train, X_test_extra, X_test, Y_test, vocab
 
 
 def random_select_docs_by_proportion(tok_folder, proportion):

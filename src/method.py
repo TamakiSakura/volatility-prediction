@@ -38,3 +38,6 @@ def involk_svr(X_total_train, Y_train, X_total_test, Y_test):
     svr_poly.fit(X_total_train, Y_train)
     result = svr_poly.predict(X_total_test)
     return metrics.mean_squared_error(result, Y_test)
+
+def baseline(Y_train, Y_test):
+    return metrics.mean_squared_error(Y_train, Y_test)
