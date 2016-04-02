@@ -16,8 +16,14 @@ def topic_from_lda(X_train, X_test, n_topics, n_iter):
     return X_reduce_train, X_reduce_test
 
 def topic_from_LSI(X_train, X_test, n_topics):
-    U, S, V = np.linalg.svd(X_train)
-    pass
+    U, S, V = np.linalg.svd(X_train.T)
+    S_hat = S[:n_topics, :n_topics]
+    U_hat = U[:, :n_topics]
+    S_hat_inverse = np.linalg.inv(S_hat)
+    new_train = np.dot(S_hat_inverse, np.dot(U_hat.T, X_train.T)
+    new_test = np.dot(S_hat_inverse, np.dot(U_hat.T, X_test.T)
+    
+    return new_train.T, new_test.T
 
 def combine_extra_to_train(extra, train):
     if type(train) == scipy.sparse.csr.csr_matrix:
