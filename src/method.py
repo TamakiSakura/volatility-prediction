@@ -13,6 +13,7 @@ def topic_from_lda(X_train, X_test, n_topics, n_iter):
     return X_reduce_train, X_reduce_test
 
 def topic_from_LSI(X_train, X_test, n_topics):
+    U, S, V = np.linalg.svd(X_train)
     pass
 
 def combine_extra_to_train(extra, train):
