@@ -13,7 +13,7 @@ def topic_from_lda(X_train, X_test, n_topics, n_iter):
     X_reduce_train = lda_model.fit_transform(X_train)
     X_reduce_test = lda_model.transform(X_test)
     
-    return X_reduce_train, X_reduce_test
+    return X_reduce_train, X_reduce_test, lda_model
 
 def topic_from_LSI(X_train, X_test, n_topics):
     U, S, V = np.linalg.svd(X_train.T)
