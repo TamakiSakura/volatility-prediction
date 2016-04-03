@@ -99,7 +99,7 @@ def generate_train_test_set(pred_year, num_prev_year, proportion):
     X_train = total_X[:-test_count]
     X_test = total_X[-test_count:]
     
-    return X_train_extra, X_train, Y_train, X_test_extra, X_test, Y_test, vocab
+    return X_train_extra, X_train, Y_train, X_test_extra, X_test, Y_test, vocab, indices
 
 
 def random_select_docs_by_proportion(tok_folder, proportion):
