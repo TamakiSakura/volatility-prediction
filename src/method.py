@@ -58,16 +58,19 @@ def baseline(X_test_extra, Y_test):
 
 def optimize_svr(X_total_train, Y_train, X_total_test, Y_test, n_iter_search):
     svr = SVR()
-    params = [
-        {'C': scipy.stats.expon(scale=1e-4), 'gamma': scipy.stats.expon(scale=1e-2), 'kernel' : ['rbf']},
-        {'C': scipy.stats.expon(scale=1e-4), 'degree': [2, 3, 4, 5, 6], 'kernel' : ['poly']},
-        {'C': scipy.stats.expon(scale=1e-4), 'kernel': ['linear']}
-    ]
+    # params = [
+    #     {'C': scipy.stats.expon(scale=1e-4), 'gamma': scipy.stats.expon(scale=1e-2), 'kernel' : ['rbf']},
+    #     {'C': scipy.stats.expon(scale=1e-4), 'degree': [2, 3, 4, 5, 6], 'kernel' : ['poly']},
+    #     {'C': scipy.stats.expon(scale=1e-4), 'kernel': ['linear']}
+    # ]
+    params = {'C': scipy.stats.expon(scale=1e-4), 'degree': [1,2,3], 'kernel' : ['poly']}
+
     
-    random_search = RandomizedSearchCV(svr, params, n_iter=n_iter_search)
+    random_search = RandomizedSearchCV(svr, param_distributions=params, n_iter=n_iter_search)
     random_search.fit(X_total_train, Y_train)
-    result = svr.predict(X_total_test)
+    result = random_search.predict(X_total_test)
     
-    mse = metrics.mena_squared_error(result, Y_test)
-    hyperparams = random_search.best_params_
-    return mse, hyperparams 
+    mse = metrics.mean_squared_error(result, Y_test)
+   # hyperparams = random_search.best_params_
+    # return mse, random_search 
+    return mse, random_search
