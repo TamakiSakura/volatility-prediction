@@ -44,6 +44,14 @@ with open('vocab_1.pickle') as f:
     vocab= pickle.load(f)
 
 
+# print the lda topics
+n_top_words = 12
+for i, topic_dist in enumerate(topic_word):
+    topic_words = np.array(vocab).T[np.argsort(topic_dist)][:-(n_top_words+1):-1]
+    topic_words = topic_words.tolist()
+    topic_words = [item for sublist in topic_words for item in sublist if item not in ['and', 'in', 'the', 'of', 'a', 'to', 'is', 'we', 'that', 'for']]
+    print('Topic {}: {}'.format(i, ' '.join(topic_words)))
+
 
 tf_train, tf_test = dtm_to_tf(X_train, X_test)
 tfidf_train, tfidf_test = dtm_to_tfidf(X_train, X_test)
