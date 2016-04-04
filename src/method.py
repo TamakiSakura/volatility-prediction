@@ -66,8 +66,8 @@ def optimize_svr(X_total_train, Y_train, X_total_test, Y_test, n_iter_search):
     
     random_search = RandomizedSearchCV(svr, params, n_iter=n_iter_search)
     random_search.fit(X_total_train, Y_train)
-    result = svr_poly.predict(X_total_test)
+    result = svr.predict(X_total_test)
     
-    mse = metric.mena_squared_error(result, Y_test)
-    hyperparams = random_search..best_params_ 
+    mse = metrics.mena_squared_error(result, Y_test)
+    hyperparams = random_search.best_params_
     return mse, hyperparams 
