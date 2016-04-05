@@ -2,7 +2,6 @@
 from method import *
 from read_data import *
 import os
-from tempfile import TemporaryFile
 import pickle
 import time
 os.chdir('/Users/hengweiguo/Documents/repo/volatility-prediction/src')
@@ -16,14 +15,19 @@ X_train_extra, X_train, Y_train, X_test_extra, X_test, Y_test, vocab, indices = 
 # do the lda reduction
 n_topics = 20
 n_iter = 1000
+t0 = time.time()
 X_train_lda, X_test_lda, lda_model = topic_from_lda(X_train, X_test, n_topics, n_iter)
+t1 = time.time()
+print('lda takes time: ' + str(t1 - t0))
 
 # # store the data
-np.savez('train_test_data_1', X_train_extra=X_train_extra, X_train=X_train, Y_train=Y_train, X_test_extra=X_test_extra, X_test=X_test, Y_test=Y_test, indices=indices, X_train_lda=X_train_lda, X_test_lda=X_test_lda, lda_model=lda_model)
+np.savez('train_test_data_1', X_train_extra=X_train_extra, X_train=X_train, Y_train=Y_train, X_test_extra=X_test_extra, X_test=X_test, Y_test=Y_test, indices=indices, X_train_lda=X_train_lda, X_test_lda=X_test_lda)
 
 # save vocab seperately since it's not np array
 with open('vocab_1.pickle', 'w') as f:
     pickle.dump([vocab], f)
+with open('lda_model_1.pickle', 'w') as f:
+    pickle.dump([lda_model], f)
 
 
 # Getting back the objects:
@@ -38,11 +42,22 @@ indices = npzfile['indices']
 
 X_train_lda = npzfile['X_train_lda']
 X_test_lda = npzfile['X_test_lda']
-lda_model = npzfile['lda_model']
 
 with open('vocab_1.pickle') as f:
     vocab= pickle.load(f)
+    
+with open('lda_model_1.pickle') as f:
+    lda_model= pickle.load(f)
 
+
+# # print the lda topics
+# n_top_words = 12
+# topic_word = lda_model.topic_word_
+# for i, topic_dist in enumerate(topic_word):
+#     topic_words = np.array(vocab).T[np.argsort(topic_dist)][:-(n_top_words+1):-1]
+#     topic_words = topic_words.tolist()
+#     topic_words = [item for sublist in topic_words for item in sublist if item not in ['and', 'in', 'the', 'of', 'a', 'to', 'is', 'we', 'that', 'for']]
+#     print('Topic {}: {}'.format(i, ' '.join(topic_words)))
 
 
 tf_train, tf_test = dtm_to_tf(X_train, X_test)
@@ -64,6 +79,12 @@ X_total_train_lda= combine_extra_to_train(X_train_extra, X_train_lda)
 X_total_test_lda = combine_extra_to_train(X_test_extra, X_test_lda)
 
 
+# -------- Find thehyper parameters ----------
+n_iter_search = 20
+t0 = time.time()
+mse_tf_plus, random_search_tf_plus = optimize_svr(X_total_train_tf, Y_train, X_total_test_tf, Y_test, n_iter_search)
+t1 = time.time()
+print('tune hyper parameter for tf+ takes time: ' + str(t1 - t0))
 #-------------------------- Training and Testing ----------------------------
 
 # train and test with the baseline: V-12
