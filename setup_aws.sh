@@ -1,5 +1,5 @@
 sudo yum groupinstall "Development Tools"
-sudo yum install tmux lapack-devel
+sudo yum install tmux atlas-sse3-devel lapack-devel
 
 # Provide from https://gist.github.com/dacamo76/4780765
 wget https://pypi.python.org/packages/source/v/virtualenv/virtualenv-1.11.6.tar.gz
