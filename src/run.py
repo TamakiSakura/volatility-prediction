@@ -11,6 +11,9 @@ os.chdir('/Users/hengweiguo/Documents/repo/volatility-prediction/src')
 # X_train_extra and X_test_extra are v-12 volatilities
 # Y's are labels
 X_train_extra, X_train, Y_train, X_test_extra, X_test, Y_test, vocab, indices = generate_train_test_set(2006, 2, 0.2)
+# # store the data
+np.savez('train_test_data_02_20topics', X_train_extra=X_train_extra, X_train=X_train, Y_train=Y_train, X_test_extra=X_test_extra, X_test=X_test, Y_test=Y_test, indices=indices)
+
 
 # do the lda reduction
 n_topics = 20
@@ -19,9 +22,8 @@ t0 = time.time()
 X_train_lda, X_test_lda, lda_model = topic_from_lda(X_train, X_test, n_topics, n_iter)
 t1 = time.time()
 print('lda takes time: ' + str(t1 - t0))
+np.savez('lda_data_02_20topics', X_train_lda=X_train_lda, X_test_lda=X_test_lda)
 
-# # store the data
-np.savez('train_test_data_02', X_train_extra=X_train_extra, X_train=X_train, Y_train=Y_train, X_test_extra=X_test_extra, X_test=X_test, Y_test=Y_test, indices=indices, X_train_lda=X_train_lda, X_test_lda=X_test_lda)
 
 # save vocab seperately since it's not np array
 with open('vocab_02.pickle', 'w') as f:
@@ -31,7 +33,7 @@ with open('lda_model_02_20topics.pickle', 'w') as f:
 
 
 # Getting back the objects:
-npzfile = np.load('train_test_data_01.npz')
+npzfile = np.load('train_test_data_02.npz')
 X_train_extra = npzfile['X_train_extra']
 X_train = npzfile['X_train'] # doc term mat
 Y_train = npzfile['Y_train'] # doc term mat
@@ -40,14 +42,15 @@ X_test = npzfile['X_test']
 Y_test = npzfile['Y_test']
 indices = npzfile['indices']
 
+npzfile = np.load('lda_data_02_20topics.npz')
 X_train_lda = npzfile['X_train_lda']
 X_test_lda = npzfile['X_test_lda']
 
-with open('vocab_1.pickle') as f:
+with open('vocab_02.pickle') as f:
     vocab= pickle.load(f)
     
-with open('lda_model_1.pickle') as f:
-    lda_model= pickle.load(f)
+with open('lda_model_02_20topics.pickle') as f:
+    lda_model= pickle.load(f)[0]
 
 
 # print the lda topics
