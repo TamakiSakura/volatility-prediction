@@ -4,6 +4,7 @@ from sklearn.svm import SVR
 from sklearn import metrics
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.grid_search import RandomizedSearchCV
+import math
 
 def topic_from_lda(X_train, X_test, n_topics, n_iter):
     import lda
@@ -47,8 +48,8 @@ def dtm_to_tfidf(X_train, X_test):
 def dtm_to_log1p(X_train, X_test):
     return np.log(X_train + 1), np.log(X_test + 1)
 
-def involk_svr(X_total_train, Y_train, X_total_test, Y_test, C=1e-5, degree=2):
-    svr_poly = SVR(kernel='poly', C=C, degree=degree)
+def involk_svr(X_total_train, Y_train, X_total_test, Y_test, C=math.pow(2,1), epsilon=math.pow(2, -4), degree=2, gamma=1):
+    svr_poly = SVR(kernel='linear', C=C,epsilon=epsilon, degree=degree, gamma=gamma)
     svr_poly.fit(X_total_train, Y_train)
     result = svr_poly.predict(X_total_test)
     return metrics.mean_squared_error(result, Y_test)
@@ -63,7 +64,8 @@ def optimize_svr(X_total_train, Y_train, X_total_test, Y_test, n_iter_search):
     #     {'C': scipy.stats.expon(scale=1e-4), 'degree': [2, 3, 4, 5, 6], 'kernel' : ['poly']},
     #     {'C': scipy.stats.expon(scale=1e-4), 'kernel': ['linear']}
     # ]
-    params = {'C': scipy.stats.expon(scale=1e-4), 'degree': [1,2,3], 'kernel' : ['poly']}
+   # params = {'C': scipy.stats.expon(scale=1e-4), 'degree': [1,2,3], 'kernel' : ['poly']}
+    params = {'C': [1e-1,1e-2,1e-3,1e-4,1e-5,1e-6,1e-7,1e-8,1e-8,1e-10], 'degree': [1,2,3], 'kernel' : ['poly']}
 
     
     random_search = RandomizedSearchCV(svr, param_distributions=params, n_iter=n_iter_search)

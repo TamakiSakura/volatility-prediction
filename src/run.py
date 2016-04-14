@@ -10,7 +10,7 @@ os.chdir('/Users/hengweiguo/Documents/repo/volatility-prediction/src')
 # X_train and X_test are doc-term matrices
 # X_train_extra and X_test_extra are v-12 volatilities
 # Y's are labels
-X_train_extra, X_train, Y_train, X_test_extra, X_test, Y_test, vocab, indices = generate_train_test_set(2006, 2, 1)
+X_train_extra, X_train, Y_train, X_test_extra, X_test, Y_test, vocab, indices = generate_train_test_set(2006, 2, 0.2)
 
 # do the lda reduction
 n_topics = 20
@@ -21,17 +21,17 @@ t1 = time.time()
 print('lda takes time: ' + str(t1 - t0))
 
 # # store the data
-np.savez('train_test_data_1', X_train_extra=X_train_extra, X_train=X_train, Y_train=Y_train, X_test_extra=X_test_extra, X_test=X_test, Y_test=Y_test, indices=indices, X_train_lda=X_train_lda, X_test_lda=X_test_lda)
+np.savez('train_test_data_02', X_train_extra=X_train_extra, X_train=X_train, Y_train=Y_train, X_test_extra=X_test_extra, X_test=X_test, Y_test=Y_test, indices=indices, X_train_lda=X_train_lda, X_test_lda=X_test_lda)
 
 # save vocab seperately since it's not np array
-with open('vocab_1.pickle', 'w') as f:
+with open('vocab_02.pickle', 'w') as f:
     pickle.dump([vocab], f)
-with open('lda_model_1.pickle', 'w') as f:
+with open('lda_model_02_20topics.pickle', 'w') as f:
     pickle.dump([lda_model], f)
 
 
 # Getting back the objects:
-npzfile = np.load('train_test_data_1.npz')
+npzfile = np.load('train_test_data_01.npz')
 X_train_extra = npzfile['X_train_extra']
 X_train = npzfile['X_train'] # doc term mat
 Y_train = npzfile['Y_train'] # doc term mat
@@ -50,14 +50,14 @@ with open('lda_model_1.pickle') as f:
     lda_model= pickle.load(f)
 
 
-# # print the lda topics
-# n_top_words = 12
-# topic_word = lda_model.topic_word_
-# for i, topic_dist in enumerate(topic_word):
-#     topic_words = np.array(vocab).T[np.argsort(topic_dist)][:-(n_top_words+1):-1]
-#     topic_words = topic_words.tolist()
-#     topic_words = [item for sublist in topic_words for item in sublist if item not in ['and', 'in', 'the', 'of', 'a', 'to', 'is', 'we', 'that', 'for']]
-#     print('Topic {}: {}'.format(i, ' '.join(topic_words)))
+# print the lda topics
+n_top_words = 12
+topic_word = lda_model.topic_word_
+for i, topic_dist in enumerate(topic_word):
+    topic_words = np.array(vocab).T[np.argsort(topic_dist)][:-(n_top_words+1):-1]
+    topic_words = topic_words.tolist()
+    topic_words = [item for sublist in topic_words for item in sublist if item not in ['and', 'in', 'the', 'of', 'a', 'to', 'is', 'we', 'that', 'for']]
+    print('Topic {}: {}'.format(i, ' '.join(topic_words)))
 
 
 tf_train, tf_test = dtm_to_tf(X_train, X_test)
