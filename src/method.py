@@ -6,6 +6,7 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.grid_search import RandomizedSearchCV
 import math
 
+
 def topic_from_lda(X_train, X_test, n_topics, n_iter):
     import lda
     X_train = X_train.astype(int)
@@ -48,7 +49,7 @@ def dtm_to_tfidf(X_train, X_test):
 def dtm_to_log1p(X_train, X_test):
     return np.log(X_train + 1), np.log(X_test + 1)
 
-def involk_svr(X_total_train, Y_train, X_total_test, Y_test, C=math.pow(2,1), epsilon=math.pow(2, -4), degree=2, gamma=1):
+def involk_svr(X_total_train, Y_train, X_total_test, Y_test, C=math.pow(2,-10), epsilon=0.1, degree=2, gamma=1):
     svr_poly = SVR(kernel='linear', C=C,epsilon=epsilon, degree=degree, gamma=gamma)
     svr_poly.fit(X_total_train, Y_train)
     result = svr_poly.predict(X_total_test)

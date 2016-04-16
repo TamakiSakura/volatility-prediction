@@ -4,6 +4,8 @@ from read_data import *
 import os
 import pickle
 import time
+from sklearn.preprocessing import scale
+
 os.chdir('/Users/hengweiguo/Documents/repo/volatility-prediction/src')
 
 
@@ -33,7 +35,7 @@ with open('lda_model_02_20topics.pickle', 'w') as f:
 
 
 # Getting back the objects:
-npzfile = np.load('train_test_data_02.npz')
+npzfile = np.load('train_test_data_1.npz')
 X_train_extra = npzfile['X_train_extra']
 X_train = npzfile['X_train'] # doc term mat
 Y_train = npzfile['Y_train'] # doc term mat
@@ -42,14 +44,14 @@ X_test = npzfile['X_test']
 Y_test = npzfile['Y_test']
 indices = npzfile['indices']
 
-npzfile = np.load('lda_data_02_20topics.npz')
+npzfile = np.load('lda_data_1_20topics.npz')
 X_train_lda = npzfile['X_train_lda']
 X_test_lda = npzfile['X_test_lda']
 
-with open('vocab_02.pickle') as f:
+with open('vocab_1.pickle') as f:
     vocab= pickle.load(f)
     
-with open('lda_model_02_20topics.pickle') as f:
+with open('lda_model_1_20topics.pickle') as f:
     lda_model= pickle.load(f)[0]
 
 
@@ -67,6 +69,15 @@ tf_train, tf_test = dtm_to_tf(X_train, X_test)
 tfidf_train, tfidf_test = dtm_to_tfidf(X_train, X_test)
 log1p_train, log1p_test = dtm_to_log1p(X_train, X_test)
 
+scaleData = 1
+if scaleData:
+    # can't do with_mean=True with sparse matrix
+    tf_train = scale(tf_train, with_mean=False)
+    tf_test = scale(tf_test, with_mean=False)
+    tfidf_train = scale(tfidf_train, with_mean=False)
+    tfidf_test = scale(tfidf_test, with_mean=False)
+    log1p_train = scale(log1p_train, with_mean=False)
+    log1p_test = scale(log1p_test, with_mean=False)
 
 # combine the doc-term data and the voliatility data
 X_total_train_tf = combine_extra_to_train(X_train_extra, tf_train)
