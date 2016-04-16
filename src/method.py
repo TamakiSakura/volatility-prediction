@@ -7,12 +7,12 @@ from sklearn.grid_search import RandomizedSearchCV
 import math
 
 
-def topic_from_lda(X_train, X_test, n_topics, n_iter):
+def topic_from_lda(X_train, X_test, n_topics, n_iter, alpha=0.1, eta=0.01):
     import lda
     X_train = X_train.astype(int)
     X_test = X_test.astype(int)
 
-    lda_model = lda.LDA(n_topics, n_iter)
+    lda_model = lda.LDA(n_topics, n_iter, alpha, eta)
     X_reduce_train = lda_model.fit_transform(X_train)
     X_reduce_test = lda_model.transform(X_test)
     

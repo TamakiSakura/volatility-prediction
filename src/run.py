@@ -1,4 +1,3 @@
-
 from method import *
 from read_data import *
 import os
@@ -34,7 +33,8 @@ from ptm import HMM_LDA
 
 
 # Getting back the objects:
-npzfile = np.load('train_test_data_001_20topics.npz')
+
+npzfile = np.load('train_test_data_02.npz')
 X_train_extra = npzfile['X_train_extra']
 X_train = npzfile['X_train'] # doc term mat
 Y_train = npzfile['Y_train'] # doc term mat
@@ -43,14 +43,14 @@ X_test = npzfile['X_test']
 Y_test = npzfile['Y_test']
 indices = npzfile['indices']
 
-npzfile = np.load('lda_data_001_20topics.npz')
+npzfile = np.load('lda_data_02_20topics.npz')
 X_train_lda = npzfile['X_train_lda']
 X_test_lda = npzfile['X_test_lda']
 
-#with open('vocab_001.pickle') as f:
+#with open('vocab_02.pickle') as f:
 #    vocab= pickle.load(f)
     
-with open('lda_model_001_20topics.pickle') as f:
+with open('lda_model_02_20topics.pickle') as f:
     lda_model= pickle.load(f)[0]
 
 
@@ -83,20 +83,20 @@ with open('lda_model_001_20topics.pickle') as f:
 # with open('hmm_lda_001_20topics_20iters.pickle', 'w') as f:
 #     pickle.dump([hmm_LDA_vocab, hmm_lda_corpus, hmm_lda_X_train, hmm_LDA_X_test, model], f)
 
-with open('hmm_lda_001_20topics_20iters.pickle') as f:
-    tmpData = pickle.load(f)
-    vocab_hmmlda = tmpData[0]
-    corpus_hmmlda = tmpData[1]  # hmm_lda_X_train + hmm_LDA_X_test
-    X_train_hmmlda = tmpData[2]
-    X_test_hmmlda = tmpData[3]
-    model = tmpData[4]
-    del tmpData
+#with open('hmm_lda_1_20topics_20iters.pickle') as f:
+#    tmpData = pickle.load(f)
+#    vocab_hmmlda = tmpData[0]
+#    corpus_hmmlda = tmpData[1]  # hmm_lda_X_train + hmm_LDA_X_test
+#    X_train_hmmlda = tmpData[2]
+#    X_test_hmmlda = tmpData[3]
+#    model = tmpData[4]
+#    del tmpData
 
 tf_train, tf_test = dtm_to_tf(X_train, X_test)
 tfidf_train, tfidf_test = dtm_to_tfidf(X_train, X_test)
 log1p_train, log1p_test = dtm_to_log1p(X_train, X_test)
 
-scaleData = 1
+scaleData = 0
 if scaleData:
     # can't do with_mean=True with sparse matrix
     tf_train = scale(tf_train, with_mean=False)
@@ -109,17 +109,31 @@ if scaleData:
     X_test_lda = scale(X_test_lda, with_mean=False)
 
 # combine the doc-term data and the voliatility data
-# X_total_train_tf = combine_extra_to_train(X_train_extra, tf_train)
-# X_total_test_tf = combine_extra_to_train(X_test_extra, tf_test)
+withextra = 0
+if withextra:
+    X_total_train_tf = combine_extra_to_train(X_train_extra, tf_train)
+    X_total_test_tf = combine_extra_to_train(X_test_extra, tf_test)
 
-# X_total_train_tfidf = combine_extra_to_train(X_train_extra, tfidf_train)
-# X_total_test_tfidf = combine_extra_to_train(X_test_extra, tfidf_test)
+    X_total_train_tfidf = combine_extra_to_train(X_train_extra, tfidf_train)
+    X_total_test_tfidf = combine_extra_to_train(X_test_extra, tfidf_test)
 
-# X_total_train_log1p = combine_extra_to_train(X_train_extra, log1p_train)
-# X_total_test_log1p = combine_extra_to_train(X_test_extra, log1p_test)
+    X_total_train_log1p = combine_extra_to_train(X_train_extra, log1p_train)
+    X_total_test_log1p = combine_extra_to_train(X_test_extra, log1p_test)
 
-# X_total_train_lda= combine_extra_to_train(X_train_extra, X_train_lda)
-# X_total_test_lda = combine_extra_to_train(X_test_extra, X_test_lda)
+    X_total_train_lda= combine_extra_to_train(X_train_extra, X_train_lda)
+    X_total_test_lda = combine_extra_to_train(X_test_extra, X_test_lda)
+else:    
+    X_total_train_tf = tf_train
+    X_total_test_tf = tf_test
+
+    X_total_train_tfidf = tfidf_train
+    X_total_test_tfidf = tfidf_test
+
+    X_total_train_log1p = log1p_train
+    X_total_test_log1p = log1p_test
+
+    X_total_train_lda= X_train_lda
+    X_total_test_lda = X_test_lda
 
 
 # Code for predicting difference
@@ -135,60 +149,76 @@ X_test_extra = np.zeros(len(X_test_extra))
 # print('tune hyper parameter for tf+ takes time: ' + str(t1 - t0))
 #-------------------------- Training and Testing ----------------------------
 
+lda_test = 1
 
-# train and test with the baseline: V-12
-t0 = time.time()
-mse_V_minus_12 = baseline(X_test_extra, Y_test)
-t1 = time.time()
-print('mse_V_minus_12 takes time: ' + str(t1 - t0))
-print('mse_V_minus_12: ' + str(mse_V_minus_12))
+if lda_test:
+    n_topics = 20
+    n_iter = 1000
+    for n_topics in [10,15,20,25,30,35,40]:
+        for alpha in [0.02, 0.1, 0.5]:
+            for eta in [0.001, 0.01, 0.1]:
+                t0 = time.time()
+                X_train_lda, X_test_lda, _ = topic_from_lda(X_train, X_test, n_topics, n_iter, alpha, eta)
+                t1 = time.time()
+                print('lda takes time: ' + str(t1 - t0))
+                mse_V_lda = involk_svr(X_train_lda, Y_train, X_test_lda, Y_test)
+                print('mse_V_lda: ' + str(mse_V_lda))
+                print('n_topics = ' + str(n_topics))
+                print('alpha = ' + str(alpha))
+                print('eta = ' + str(eta))
 
-# train and test with TF+
-t0 = time.time()
-#mse_V_tf_plus = involk_svr(X_total_train_tf, Y_train, X_total_test_tf, Y_test)
-mse_V_tf_plus, params = optimize_svr(X_total_train_tf, Y_train, X_total_test_tf, Y_test)
-t1 = time.time()
-print('mse_V_tf_plus takes time: ' + str(t1 - t0))
-print('mse_V_tf_plus: ' + str(mse_V_tf_plus))
-print('SVR params: '+ str(params))
+standard_test = 0
+if standard_test:
+    # train and test with the baseline: V-12
+    t0 = time.time()
+    mse_V_minus_12 = baseline(X_test_extra, Y_test)
+    t1 = time.time()
+    print('mse_V_minus_12 takes time: ' + str(t1 - t0))
+    print('mse_V_minus_12: ' + str(mse_V_minus_12))
 
-# train and test with TFIDF+
-t0 = time.time()
-#mse_V_tfidf_plus = involk_svr(X_total_train_tfidf, Y_train, X_total_test_tfidf, Y_test)
-mse_V_tfidf_plus, params = optimize_svr(X_total_train_tfidf, Y_train, X_total_test_tfidf, Y_test)
-t1 = time.time()
-print('mse_V_tfidf_plus takes time: ' + str(t1 - t0))
-print('mse_V_tfidf_plus: ' + str(mse_V_tfidf_plus))
-print('SVR params: '+ str(params))
+    # train and test with LDA
+    t0 = time.time()
+    #mse_V_lda = involk_svr(X_train_lda, Y_train, X_test_lda, Y_test)
+    mse_V_lda, params = optimize_svr(X_total_train_lda, Y_train, X_total_test_lda, Y_test)
+    t1 = time.time()
+    print('mse_V_lda takes time: ' + str(t1 - t0))
+    print('mse_V_lda: ' + str(mse_V_lda))
+    print('SVR params: '+ str(params))
 
-# train and test with LDA
-t0 = time.time()
-#mse_V_lda = involk_svr(X_train_lda, Y_train, X_test_lda, Y_test)
-mse_V_lda, params = optimize_svr(X_train_lda, Y_train, X_test_lda, Y_test)
-t1 = time.time()
-print('mse_V_lda takes time: ' + str(t1 - t0))
-print('mse_V_lda: ' + str(mse_V_lda))
-print('SVR params: '+ str(params))
+    # train and test with TF
+    t0 = time.time()
+    #mse_V_tf_plus = involk_svr(X_total_train_tf, Y_train, X_total_test_tf, Y_test)
+    mse_V_tf, params = optimize_svr(X_total_train_tf, Y_train, X_total_test_tf, Y_test)
+    t1 = time.time()
+    print('mse_V_tf takes time: ' + str(t1 - t0))
+    print('mse_V_tf: ' + str(mse_V_tf))
+    print('SVR params: '+ str(params))
 
-# train and test with HMM-LDA
-# t0 = time.time()
-#mse_V_lda = involk_svr(X_train_hmmlda, Y_train, X_test_hmmlda, Y_test)
-# mse_V_lda, params = optimize_svr(X_train_hmmlda, Y_train, X_test_hmmlda, Y_test)
-# t1 = time.time()
-# print('mse_V_hmmlda takes time: ' + str(t1 - t0))
-# print('mse_V_hmmlda: ' + str(mse_V_lda))
-# print('SVR params: '+ str(params))
+    # train and test with TFIDF
+    t0 = time.time()
+    #mse_V_tfidf_plus = involk_svr(X_total_train_tfidf, Y_train, X_total_test_tfidf, Y_test)
+    mse_V_tfidf, params = optimize_svr(X_total_train_tfidf, Y_train, X_total_test_tfidf, Y_test)
+    t1 = time.time()
+    print('mse_V_tfidf takes time: ' + str(t1 - t0))
+    print('mse_V_tfidf: ' + str(mse_V_tfidf))
+    print('SVR params: '+ str(params))
 
-# train and test with LDA+ volatility
-# 0 = time.time()
-# mse_V_lda_plus = involk_svr(X_total_train_lda, Y_train, X_total_test_lda, Y_test)
-# t1 = time.time()
-# print('mse_V_lda_plus takes time: ' + str(t1 - t0))
-# print('mse_V_lda_plus: ' + str(mse_V_lda_plus))
+    # train and test with log1p+
+    t0 = time.time()
+    #mse_V_log1p_plus = involk_svr(X_total_train_log1p, Y_train, X_total_test_log1p, Y_test)
+    mse_V_log1p = involk_svr(X_total_train_log1p, Y_train, X_total_test_log1p, Y_test)
+    t1 = time.time()
+    print('mse_V_log1p takes time: ' + str(t1 - t0))
+    print('mse_V_log1p: ' + str(mse_V_log1p))
+    print('SVR params: '+ str(params))
 
-# train and test with log1p+
-# t0 = time.time()
-#mse_V_log1p_plus = involk_svr(X_total_train_log1p, Y_train, X_total_test_log1p, Y_test)
-#t1 = time.time()
-#print('mse_V_log1p_plus takes time: ' + str(t1 - t0))
-#print('mse_V_log1p_plus: ' + str(mse_V_log1p_plus))
+    # train and test with HMM-LDA
+    # t0 = time.time()
+    #mse_V_lda = involk_svr(X_train_hmmlda, Y_train, X_test_hmmlda, Y_test)
+    # mse_V_lda, params = optimize_svr(X_train_hmmlda, Y_train, X_test_hmmlda, Y_test)
+    # t1 = time.time()
+    # print('mse_V_hmmlda takes time: ' + str(t1 - t0))
+    # print('mse_V_hmmlda: ' + str(mse_V_lda))
+    # print('SVR params: '+ str(params))
+
+import report_on_finish
