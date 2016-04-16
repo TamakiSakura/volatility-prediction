@@ -1,7 +1,7 @@
 set -e
 
 function cleanup {
-  echo "Error somewhere see above for more detail"
+  echo "Program Terminated >_<"
   set +e
 }
 trap cleanup EXIT
