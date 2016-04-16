@@ -33,3 +33,6 @@ pip install lda textmining
 
 # swapoff /swapfile1
 # swapon -s
+
+echo ". ~/sk-learn/bin/activate" >> ~/.bashrc
+echo "export PS1=\"Tamaki_Sakura@\w:\"" >> ~/.bashrc
