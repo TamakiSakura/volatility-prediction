@@ -5,6 +5,7 @@ import os
 import pickle
 import time
 from sklearn.preprocessing import scale
+from ptm import HMM_LDA
 
 os.chdir('/Users/hengweiguo/Documents/repo/volatility-prediction/src')
 
@@ -35,7 +36,7 @@ with open('lda_model_02_20topics.pickle', 'w') as f:
 
 
 # Getting back the objects:
-npzfile = np.load('train_test_data_1.npz')
+npzfile = np.load('train_test_data_01.npz')
 X_train_extra = npzfile['X_train_extra']
 X_train = npzfile['X_train'] # doc term mat
 Y_train = npzfile['Y_train'] # doc term mat
@@ -44,25 +45,42 @@ X_test = npzfile['X_test']
 Y_test = npzfile['Y_test']
 indices = npzfile['indices']
 
-npzfile = np.load('lda_data_1_20topics.npz')
+npzfile = np.load('lda_data_01_20topics.npz')
 X_train_lda = npzfile['X_train_lda']
 X_test_lda = npzfile['X_test_lda']
 
-with open('vocab_1.pickle') as f:
+with open('vocab_01.pickle') as f:
     vocab= pickle.load(f)
     
-with open('lda_model_1_20topics.pickle') as f:
+with open('lda_model_01_20topics.pickle') as f:
     lda_model= pickle.load(f)[0]
 
 
-# print the lda topics
-n_top_words = 12
-topic_word = lda_model.topic_word_
-for i, topic_dist in enumerate(topic_word):
-    topic_words = np.array(vocab).T[np.argsort(topic_dist)][:-(n_top_words+1):-1]
-    topic_words = topic_words.tolist()
-    topic_words = [item for sublist in topic_words for item in sublist if item not in ['and', 'in', 'the', 'of', 'a', 'to', 'is', 'we', 'that', 'for']]
-    print('Topic {}: {}'.format(i, ' '.join(topic_words)))
+# # print the lda topics
+# n_top_words = 12
+# topic_word = lda_model.topic_word_
+# for i, topic_dist in enumerate(topic_word):
+#     topic_words = np.array(vocab).T[np.argsort(topic_dist)][:-(n_top_words+1):-1]
+#     topic_words = topic_words.tolist()
+#     topic_words = [item for sublist in topic_words for item in sublist if item not in ['and', 'in', 'the', 'of', 'a', 'to', 'is', 'we', 'that', 'for']]
+#     print('Topic {}: {}'.format(i, ' '.join(topic_words)))
+
+hmm_LDA_vocab, hmm_lda_corpus, test_count = generateDataForHmmLDA(2006, 2, indices)
+hmm_lda_X_train = hmm_lda_corpus[:-test_count]
+hmm_LDA_X_test = hmm_lda_corpus[-test_count:]
+
+# train hmm lda
+n_docs = len(hmm_lda_X_train)
+n_voca = len(hmm_LDA_vocab)
+n_topic = 20
+n_class = 20
+max_iter = 20
+alpha = 0.1
+beta = 0.01
+gamma = 0.1
+eta = 0.1
+model = HMM_LDA(n_docs, n_voca, n_topic, n_class, alpha=alpha, beta=beta, gamma=gamma, eta=eta, verbose=True)
+model.fit(hmm_lda_X_train, max_iter=max_iter)
 
 
 tf_train, tf_test = dtm_to_tf(X_train, X_test)
