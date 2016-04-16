@@ -34,7 +34,7 @@ from ptm import HMM_LDA
 
 # Getting back the objects:
 
-npzfile = np.load('train_test_data_02.npz')
+npzfile = np.load('train_test_data_01.npz')
 X_train_extra = npzfile['X_train_extra']
 X_train = npzfile['X_train'] # doc term mat
 Y_train = npzfile['Y_train'] # doc term mat
@@ -43,15 +43,15 @@ X_test = npzfile['X_test']
 Y_test = npzfile['Y_test']
 indices = npzfile['indices']
 
-npzfile = np.load('lda_data_02_20topics.npz')
+npzfile = np.load('lda_data_01_20topics.npz')
 X_train_lda = npzfile['X_train_lda']
 X_test_lda = npzfile['X_test_lda']
 
 #with open('vocab_02.pickle') as f:
 #    vocab= pickle.load(f)
     
-with open('lda_model_02_20topics.pickle') as f:
-    lda_model= pickle.load(f)[0]
+# with open('lda_model_01_20topics.pickle') as f:
+#    lda_model= pickle.load(f)[0]
 
 
 # # print the lda topics
@@ -156,7 +156,7 @@ if lda_test:
     n_iter = 1000
     for n_topics in [10,15,20,25,30,35,40]:
         for alpha in [0.02, 0.1, 0.5]:
-            for eta in [0.001, 0.01, 0.1]:
+            for eta in [0.000278, 0.0017, 0.01, 0.06, 0.36]:
                 t0 = time.time()
                 X_train_lda, X_test_lda, _ = topic_from_lda(X_train, X_test, n_topics, n_iter, alpha, eta)
                 t1 = time.time()
