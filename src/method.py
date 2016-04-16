@@ -58,7 +58,7 @@ def involk_svr(X_total_train, Y_train, X_total_test, Y_test, C=math.pow(2,-10), 
 def baseline(X_test_extra, Y_test):
     return metrics.mean_squared_error(X_test_extra, Y_test)
 
-def optimize_svr(X_total_train, Y_train, X_total_test, Y_test, n_iter_search):
+def optimize_svr(X_total_train, Y_train, X_total_test, Y_test, n_iter_search=30):
     svr = SVR()
     # params = [
     #     {'C': scipy.stats.expon(scale=1e-4), 'gamma': scipy.stats.expon(scale=1e-2), 'kernel' : ['rbf']},
@@ -66,8 +66,11 @@ def optimize_svr(X_total_train, Y_train, X_total_test, Y_test, n_iter_search):
     #     {'C': scipy.stats.expon(scale=1e-4), 'kernel': ['linear']}
     # ]
    # params = {'C': scipy.stats.expon(scale=1e-4), 'degree': [1,2,3], 'kernel' : ['poly']}
-    params = {'C': [1e-1,1e-2,1e-3,1e-4,1e-5,1e-6,1e-7,1e-8,1e-8,1e-10], 'degree': [1,2,3], 'kernel' : ['poly']}
-
+    params = {'C': [1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-8, 1e-10], 
+              'degree': [1, 2, 3], 
+              'kernel' : ['poly'],
+              'tol' : [1e-2, 1e-3, 1e-4, 1e-5],
+              'epsilon' : [0.05, 0.1, 0.2, 0.5]}
     
     random_search = RandomizedSearchCV(svr, param_distributions=params, n_iter=n_iter_search)
     random_search.fit(X_total_train, Y_train)
@@ -76,4 +79,5 @@ def optimize_svr(X_total_train, Y_train, X_total_test, Y_test, n_iter_search):
     mse = metrics.mean_squared_error(result, Y_test)
    # hyperparams = random_search.best_params_
     # return mse, random_search 
-    return mse, random_search
+    return mse, random_search.best_params_
+
