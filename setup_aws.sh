@@ -39,4 +39,4 @@ echo "export PS1=\"Tamaki_Sakura@\w:\"" >> ~/.bashrc
 
 git clone https://github.com/guohengw/volatility-prediction.git
 cd volatility-prediction
-git checkout hmm_lda origin/hmm_lda
+git checkout -b hmm_lda origin/hmm_lda
