@@ -6,8 +6,8 @@ function cleanup {
 }
 trap cleanup EXIT
 
-sudo yum groupinstall "Development Tools"
-sudo yum install tmux atlas-sse3-devel lapack-devel
+sudo yum -y groupinstall "Development Tools"
+sudo yum -y install tmux atlas-sse3-devel lapack-devel
 
 # Provide from https://gist.github.com/dacamo76/4780765
 wget https://pypi.python.org/packages/source/v/virtualenv/virtualenv-1.11.6.tar.gz
@@ -36,3 +36,5 @@ pip install lda textmining
 
 echo ". ~/sk-learn/bin/activate" >> ~/.bashrc
 echo "export PS1=\"Tamaki_Sakura@\w:\"" >> ~/.bashrc
+
+git clone https://github.com/TamakiSakura/volatility-prediction.git
