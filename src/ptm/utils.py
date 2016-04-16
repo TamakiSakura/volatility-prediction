@@ -1,6 +1,6 @@
 import numpy as np
 
-from six.moves import xrange
+# from six.moves import xrange
 
 
 def sampling_from_dist(prob):

@@ -4,7 +4,7 @@ import numpy as np
 from scipy.special import gammaln
 import time
 
-from six.moves import xrange
+# from six.moves import xrange
 
 from .base import BaseGibbsParamTopicModel
 from .formatted_logger import formatted_logger

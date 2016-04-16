@@ -1,7 +1,7 @@
 import time
 
 import numpy as np
-from six.moves import xrange
+# from six.moves import xrange
 from scipy.special import gammaln, psi
 
 from .formatted_logger import formatted_logger

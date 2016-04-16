@@ -4,7 +4,7 @@ import numpy as np
 import nltk
 from nltk import word_tokenize
 from nltk.corpus import reuters, stopwords
-from six.moves import xrange
+# from six.moves import xrange
 
 
 def get_ids_cnt(corpus, max_voca=9999999, remove_top_n=5):

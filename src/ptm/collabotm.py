@@ -4,7 +4,7 @@ import time
 import numpy as np
 import numpy.linalg
 import scipy.optimize
-from six.moves import xrange
+# from six.moves import xrange
 
 from .simplex_projection import euclidean_proj_simplex
 from .formatted_logger import formatted_logger

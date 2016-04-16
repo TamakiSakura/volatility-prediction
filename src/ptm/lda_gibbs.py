@@ -3,7 +3,7 @@ import time
 
 import numpy as np
 from scipy.special import gammaln
-from six.moves import xrange
+# from six.moves import xrange
 
 from .base import BaseGibbsParamTopicModel
 from .formatted_logger import formatted_logger

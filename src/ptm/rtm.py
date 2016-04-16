@@ -3,7 +3,7 @@ import time
 
 import numpy as np
 from scipy.special import gammaln, psi
-from six.moves import xrange
+# from six.moves import xrange
 
 from .utils import write_top_words
 from .formatted_logger import formatted_logger

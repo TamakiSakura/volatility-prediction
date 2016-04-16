@@ -4,7 +4,7 @@ import numpy as np
 from scipy.special import gammaln
 from scipy.stats import norm
 from numpy.linalg import solve
-from six.moves import xrange
+# from six.moves import xrange
 
 from .base import BaseGibbsParamTopicModel
 from .utils import sampling_from_dist
