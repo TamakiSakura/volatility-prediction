@@ -147,16 +147,23 @@ X_test_extra = np.zeros(len(X_test_extra))
 # mse_tf_plus, random_search_tf_plus = optimize_svr(X_total_train_tf, Y_train, X_total_test_tf, Y_test, n_iter_search)
 # t1 = time.time()
 # print('tune hyper parameter for tf+ takes time: ' + str(t1 - t0))
-#-------------------------- Training and Testing ----------------------------
+#-------------------------- Training and Testing ---------------------------
+
+# train and test with the baseline: V-12
+t0 = time.time()
+mse_V_minus_12 = baseline(X_test_extra, Y_test)
+t1 = time.time()
+print('mse_V_minus_12 takes time: ' + str(t1 - t0))
+print('mse_V_minus_12: ' + str(mse_V_minus_12))
 
 lda_test = 1
 
 if lda_test:
     n_topics = 20
     n_iter = 1000
-    for n_topics in [10,15,20,25,30,35,40]:
-        for alpha in [0.02, 0.1, 0.5]:
-            for eta in [0.000278, 0.0017, 0.01, 0.06, 0.36]:
+    for n_topics in [10,50,100]:
+        for alpha in [0.005, 0.1, 2]:
+            for eta in [0.05, 0.01, 0.2]:
                 t0 = time.time()
                 X_train_lda, X_test_lda, _ = topic_from_lda(X_train, X_test, n_topics, n_iter, alpha, eta)
                 t1 = time.time()
@@ -166,16 +173,10 @@ if lda_test:
                 print('n_topics = ' + str(n_topics))
                 print('alpha = ' + str(alpha))
                 print('eta = ' + str(eta))
+                print('=========================================')
 
 standard_test = 0
 if standard_test:
-    # train and test with the baseline: V-12
-    t0 = time.time()
-    mse_V_minus_12 = baseline(X_test_extra, Y_test)
-    t1 = time.time()
-    print('mse_V_minus_12 takes time: ' + str(t1 - t0))
-    print('mse_V_minus_12: ' + str(mse_V_minus_12))
-
     # train and test with LDA
     t0 = time.time()
     #mse_V_lda = involk_svr(X_train_lda, Y_train, X_test_lda, Y_test)
