@@ -52,7 +52,7 @@ def dtm_to_tfidf(X_train, X_test):
 def dtm_to_log1p(X_train, X_test):
     return np.log(X_train + 1), np.log(X_test + 1)
 
-def involk_svr(X_total_train, Y_train, X_total_test, Y_test, C=math.pow(2,-10), epsilon=0.1, degree=2, gamma=1):
+def involk_svr(X_total_train, Y_train, X_total_test, Y_test, C=math.pow(2,-10), epsilon=0.1, degree=1, gamma=0.1):
     svr_poly = SVR(kernel='linear', C=C,epsilon=epsilon, degree=degree, gamma=gamma)
     svr_poly.fit(X_total_train, Y_train)
     result = svr_poly.predict(X_total_test)
