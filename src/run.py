@@ -161,9 +161,11 @@ lda_test = 1
 if lda_test:
     n_topics = 20
     n_iter = 1000
-    for n_topics in [10,50,100]:
-        for alpha in [0.005, 0.1, 2]:
-            for eta in [0.05, 0.01, 0.2]:
+    for n_topics in [10,12,15]:
+        for alpha in [0.0002, 0.001, 0.05]:
+            for eta in [0.01, 0.05, 0.1]:
+                # Best alpha = 0.001
+                # Best eta = 0.05
                 t0 = time.time()
                 X_train_lda, X_test_lda, _ = topic_from_lda(X_train, X_test, n_topics, n_iter, alpha, eta)
                 t1 = time.time()
