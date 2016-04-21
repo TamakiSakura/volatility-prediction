@@ -7,7 +7,7 @@ from sklearn.grid_search import RandomizedSearchCV
 import math
 
 
-def topic_from_lda(X_train, X_test, n_topics, n_iter, alpha=0.1, eta=0.01):
+def topic_from_LDA(X_train, X_test, n_topics, n_iter, alpha=0.1, eta=0.01):
     import lda
     X_train = X_train.astype(int)
     X_test = X_test.astype(int)
@@ -19,8 +19,9 @@ def topic_from_lda(X_train, X_test, n_topics, n_iter, alpha=0.1, eta=0.01):
     return X_reduce_train, X_reduce_test, lda_model
 
 def topic_from_LSI(X_train, X_test, n_topics):
-    U, S, V = np.linalg.svd(X_train.T)
-    S_hat = S[:n_topics, :n_topics]
+    X_train_sparse = scipy.sparse.csr_matrix(X_train.T)
+    U, S, V = scipy.sparse.linalg.svds(X_train_sparse)
+    S_hat = np.diag(S[:n_topics])
     U_hat = U[:, :n_topics]
     S_hat_inverse = np.linalg.inv(S_hat)
     new_train = np.dot(S_hat_inverse, np.dot(U_hat.T, X_train.T))
