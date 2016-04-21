@@ -34,7 +34,7 @@ from ptm import HMM_LDA
 
 # Getting back the objects:
 
-npzfile = np.load('train_test_data_01.npz')
+npzfile = np.load('train_test_data_1.npz')
 X_train_extra = npzfile['X_train_extra']
 X_train = npzfile['X_train'] # doc term mat
 Y_train = npzfile['Y_train'] # doc term mat
@@ -92,9 +92,11 @@ X_test_lda = npzfile['X_test_lda']
 #    model = tmpData[4]
 #    del tmpData
 
-tfidf_train, tfidf_test = dtm_to_tfidf(X_train, X_test)
+#tfidf_train, tfidf_test = dtm_to_tfidf(X_train, X_test)
+tfidf_train = 0
+tfidf_test = 0
 
-do_extra_original = 1
+do_extra_original = 0
 if do_extra_original:
     tf_train, tf_test = dtm_to_tf(X_train, X_test)
     log1p_train, log1p_test = dtm_to_log1p(X_train, X_test)
@@ -187,7 +189,7 @@ if lda_test:
                 X_total_train_lda, X_total_test_lda, _ = topic_from_LDA(X_train, X_test, n_topics, n_iter, alpha, eta)
                 t1 = time.time()
                 print('lda takes time: ' + str(t1 - t0))
-                mse_V_lda = involk_svr(X_total_train_lda, Y_train, X_total_test_lda, Y_test)
+                mse_V_lda = involk_svr(X_total_train_lda, Y_train, X_total_test_lda, Y_test, degree=2)
                 print('mse_V_lda: ' + str(mse_V_lda))
                 print('n_topics = ' + str(n_topics))
                 print('alpha = ' + str(alpha))
@@ -195,12 +197,12 @@ if lda_test:
                 print('=========================================')
 
 # Test All
-standard_test = 1
+standard_test = 0
 if standard_test:
     # train and test with LDA
     t0 = time.time()
-    #mse_V_lda = involk_svr(X_total_train_lda, Y_train, X_total_test_lda, Y_test)
-    mse_V_lda, params = optimize_svr(X_total_train_lda, Y_train, X_total_test_lda, Y_test)
+    mse_V_lda = involk_svr(X_total_train_lda, Y_train, X_total_test_lda, Y_test, degree=2)
+    #mse_V_lda, params = optimize_svr(X_total_train_lda, Y_train, X_total_test_lda, Y_test)
     t1 = time.time()
     print('mse_V_lda takes time: ' + str(t1 - t0))
     print('mse_V_lda: ' + str(mse_V_lda))
@@ -208,8 +210,8 @@ if standard_test:
 
     # train and test with lsi
     t0 = time.time()
-    #mse_V_tf = involk_svr(X_total_train_lsi, Y_train, X_total_test_lsi, Y_test)
-    mse_V_tf, params = optimize_svr(X_total_train_tf, Y_train, X_total_test_tf, Y_test)
+    mse_V_tf = involk_svr(X_total_train_lsi, Y_train, X_total_test_lsi, Y_test)
+    #mse_V_tf, params = optimize_svr(X_total_train_tf, Y_train, X_total_test_tf, Y_test)
     t1 = time.time()
     print('mse_V_lsi takes time: ' + str(t1 - t0))
     print('mse_V_lsi: ' + str(mse_V_tf))
@@ -217,8 +219,8 @@ if standard_test:
     
     # train and test with TFIDF
     t0 = time.time()
-    #mse_V_tfidf = involk_svr(X_total_train_tfidf, Y_train, X_total_test_tfidf, Y_test)
-    mse_V_tfidf, params = optimize_svr(X_total_train_tfidf, Y_train, X_total_test_tfidf, Y_test)
+    mse_V_tfidf = involk_svr(X_total_train_tfidf, Y_train, X_total_test_tfidf, Y_test)
+    #mse_V_tfidf, params = optimize_svr(X_total_train_tfidf, Y_train, X_total_test_tfidf, Y_test)
     t1 = time.time()
     print('mse_V_tfidf takes time: ' + str(t1 - t0))
     print('mse_V_tfidf: ' + str(mse_V_tfidf))
@@ -227,8 +229,8 @@ if standard_test:
     if do_extra_original: 
         # train and test with TF
         t0 = time.time()
-        #mse_V_tf = involk_svr(X_total_train_tf, Y_train, X_total_test_tf, Y_test)
-        mse_V_tf, params = optimize_svr(X_total_train_tf, Y_train, X_total_test_tf, Y_test)
+        mse_V_tf = involk_svr(X_total_train_tf, Y_train, X_total_test_tf, Y_test)
+        #mse_V_tf, params = optimize_svr(X_total_train_tf, Y_train, X_total_test_tf, Y_test)
         t1 = time.time()
         print('mse_V_tf takes time: ' + str(t1 - t0))
         print('mse_V_tf: ' + str(mse_V_tf))
@@ -236,8 +238,8 @@ if standard_test:
 
         # train and test with log1p+
         t0 = time.time()
-        #mse_V_log1p = involk_svr(X_total_train_log1p, Y_train, X_total_test_log1p, Y_test)
         mse_V_log1p = involk_svr(X_total_train_log1p, Y_train, X_total_test_log1p, Y_test)
+        #mse_V_log1p = involk_svr(X_total_train_log1p, Y_train, X_total_test_log1p, Y_test)
         t1 = time.time()
         print('mse_V_log1p takes time: ' + str(t1 - t0))
         print('mse_V_log1p: ' + str(mse_V_log1p))
