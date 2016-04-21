@@ -16,8 +16,6 @@ def topic_from_LDA(X_train, X_test, n_topics, n_iter, alpha=0.1, eta=0.01):
     X_reduce_train = lda_model.fit_transform(X_train)
     X_reduce_test = lda_model.transform(X_test)
    
-    del lda_model
- 
     return X_reduce_train, X_reduce_test, lda_model
 
 def topic_from_LSI(X_train, X_test, n_topics):
