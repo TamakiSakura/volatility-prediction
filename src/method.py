@@ -50,8 +50,8 @@ def dtm_to_tfidf(X_train, X_test):
 def dtm_to_log1p(X_train, X_test):
     return np.log(X_train + 1), np.log(X_test + 1)
 
-def involk_svr(X_total_train, Y_train, X_total_test, Y_test, C=math.pow(2,-10), epsilon=0.1, degree=1, gamma=0.1):
-    svr_poly = SVR(kernel='linear', C=C,epsilon=epsilon, degree=degree, gamma=gamma)
+def involk_svr(X_total_train, Y_train, X_total_test, Y_test, C=math.pow(2,-10), tol=1e-5, epsilon=0.1, degree=1, gamma=0.1):
+    svr_poly = SVR(kernel='poly', C=C,epsilon=epsilon, degree=degree, gamma=gamma, tol=tol)
     svr_poly.fit(X_total_train, Y_train)
     result = svr_poly.predict(X_total_test)
     return metrics.mean_squared_error(result, Y_test)
@@ -60,13 +60,14 @@ def baseline(X_test_extra, Y_test):
     return metrics.mean_squared_error(X_test_extra, Y_test)
 
 def optimize_svr(X_total_train, Y_train, X_total_test, Y_test, n_iter_search=30):
+    '''
     svr = SVR()
     # params = [
     #     {'C': scipy.stats.expon(scale=1e-4), 'gamma': scipy.stats.expon(scale=1e-2), 'kernel' : ['rbf']},
     #     {'C': scipy.stats.expon(scale=1e-4), 'degree': [2, 3, 4, 5, 6], 'kernel' : ['poly']},
     #     {'C': scipy.stats.expon(scale=1e-4), 'kernel': ['linear']}
     # ]
-   # params = {'C': scipy.stats.expon(scale=1e-4), 'degree': [1,2,3], 'kernel' : ['poly']}
+    # params = {'C': scipy.stats.expon(scale=1e-4), 'degree': [1,2,3], 'kernel' : ['poly']}
     params = {'C': [1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-8, 1e-10], 
               'degree': [1, 2, 3], 
               'kernel' : ['poly'],
@@ -78,7 +79,23 @@ def optimize_svr(X_total_train, Y_train, X_total_test, Y_test, n_iter_search=30)
     result = random_search.predict(X_total_test)
     
     mse = metrics.mean_squared_error(result, Y_test)
-   # hyperparams = random_search.best_params_
+    # hyperparams = random_search.best_params_
     # return mse, random_search 
-    return mse, random_search.best_params_
+    '''    
+    best_mse = -1
+    best_param = {}
+    for C in [1e-4, 1e-7, 1e-10]:
+        for tol in [1e-5, 1e-3]:    
+            for epsilon in [0.1, 0.5]:
+                for degree in [1, 2, 3]:
+                    for gamma in [1e-8, 1e-4, 0.1]:
+                        mse = involk_svr(X_total_train, Y_train, X_total_test, Y_test, C, tol, epsilon, degree, gamma)
+                        if mse < best_mse or best_mse == -1:
+                            best_mse = mse
+                            best_param['C'] = C
+                            best_param['tol'] = tol
+                            best_param['epsilon'] = epsilon
+                            best_param['degree'] = degree
+                            best_param['gamma'] = gamma
+    return best_mse, best_param
 
