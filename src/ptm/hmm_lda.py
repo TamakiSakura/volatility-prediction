@@ -1,5 +1,7 @@
 from __future__ import print_function
 import time
+import copy
+
 
 # from six.moves import xrange
 import numpy as np
@@ -166,6 +168,97 @@ class HMM_LDA(BaseGibbsParamTopicModel):
                 print('[ITER] ' + str(iter) + ',\telapsed time: ' + str( time.time() - tic) + '\tlog-likelihood: ' + str(ll))
                 logger.info('[ITER] %d,\telapsed time: %.2f\tlog-likelihood:%.2f', iter, time.time() - tic, ll)
 
+
+    def transform(self, docs, max_iter):
+        testLdaModel = copy.deepcopy(self)
+        testLdaModel.n_doc = len(docs)
+        testLdaModel.word_class = list()
+        testLdaModel.word_topic = list()
+        testLdaModel.DT = np.zeros([testLdaModel.n_doc, self.n_topic]) + self.alpha
+        testLdaModel.random_init(docs)
+        testLdaModel.n_class = self.n_class
+        testLdaModel.CW = copy.deepcopy(self.CW)
+        testLdaModel.sum_C = copy.deepcopy(self.sum_C)
+        testLdaModel.T = copy.deepcopy(self.T)
+        testLdaModel.TW = copy.deepcopy(self.TW)
+        testLdaModel.sum_T = copy.deepcopy(self.sum_T)
+
+
+        for iter in xrange(max_iter):
+            tic = time.time()
+            for di, doc in enumerate(docs):
+                doc_topic = testLdaModel.word_topic[di]
+                doc_class = testLdaModel.word_class[di]
+
+                for si, sentence in enumerate(doc):
+                    len_sentence = len(sentence)
+
+                    sentence_topic = doc_topic[si]
+                    sentence_class = doc_class[si]
+
+                    for wi, word in enumerate(sentence):
+
+                        if wi == 0:
+                            prev_c = testLdaModel.n_class
+                        else:
+                            prev_c = sentence_class[wi - 1]
+
+                        if wi == len_sentence - 1:
+                            next_c = testLdaModel.n_class + 1
+                        else:
+                            next_c = sentence_class[wi + 1]
+
+                        old_c = sentence_class[wi]
+                        old_t = sentence_topic[wi]
+
+                        # remove previous state
+                        # testLdaModel.CW[old_c, word] -= 1
+                        # testLdaModel.sum_C[old_c] -= 1
+                        # testLdaModel.T[prev_c, old_c] -= 1
+                        # testLdaModel.T[old_c, next_c] -= 1
+
+                        # sample class
+                        prob = (testLdaModel.T[prev_c, :testLdaModel.n_class] / testLdaModel.T[prev_c].sum()) \
+                                * (testLdaModel.T[:testLdaModel.n_class, next_c] / np.sum(testLdaModel.T[:testLdaModel.n_class], 1))
+                        prob[0] *= (testLdaModel.TW[old_t, word] / testLdaModel.sum_T[old_t])
+                        prob[1:] *= testLdaModel.CW[1:, word] / testLdaModel.sum_C[1:]
+
+                        new_c = np.random.multinomial(1, prob).argmax()
+
+                        sentence_class[wi] = new_c
+                        # testLdaModel.CW[new_c, word] += 1
+                        # testLdaModel.sum_C[new_c] += 1
+                        # testLdaModel.T[prev_c, new_c] += 1
+                        # testLdaModel.T[new_c, next_c] += 1
+
+                        # remove previous topic state
+                        testLdaModel.DT[di, old_t] -= 1
+
+                        # if testLdaModel.DT[di, old_t] <= 0:
+                        #     testLdaModel.DT[di, old_t] += 1
+                        # if old_c == 0:
+                        #     testLdaModel.TW[old_t, word] -= 1
+                        #     testLdaModel.sum_T[old_t] -= 1
+
+                        # sample topic
+                        prob = testLdaModel.DT[di].copy()
+                        if new_c == 0:
+                            prob *= testLdaModel.TW[:, word] / testLdaModel.sum_T
+                        prob /= np.sum(prob)
+
+                        new_topic = np.random.multinomial(1, prob).argmax()
+                        testLdaModel.DT[di, new_topic] += 1
+                        # if new_c == 0:
+                        #     testLdaModel.TW[new_topic, word] += 1
+                        #     testLdaModel.sum_T[new_topic] += 1
+                        sentence_topic[wi] = new_topic
+
+            if self.verbose:
+                ll = testLdaModel.log_likelihood()
+                print('[ITER] ' + str(iter) + ',\telapsed time: ' + str( time.time() - tic) + '\tlog-likelihood: ' + str(ll))
+                logger.info('[ITER] %d,\telapsed time: %.2f\tlog-likelihood:%.2f', iter, time.time() - tic, ll)
+        return testLdaModel
+
     def log_likelihood(self):
         """
         Compute marginal log likelihood of the model
@@ -175,10 +268,13 @@ class HMM_LDA(BaseGibbsParamTopicModel):
         ll += self.n_topic * gammaln(self.beta * self.n_voca)
         ll -= self.n_topic * self.n_voca * gammaln(self.beta)
 
+
         for di in xrange(self.n_doc):
             ll += gammaln(self.DT[di]).sum() - gammaln(self.DT[di].sum())
+
         for ki in xrange(self.n_topic):
             ll += gammaln(self.TW[ki]).sum() - gammaln(self.sum_T[ki])
+
 
         if self.n_class != 1:
             ll += (self.n_class - 1) * gammaln(self.gamma * (self.n_class - 1))
