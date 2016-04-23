@@ -1,6 +1,7 @@
 import numpy as np
 import textmining
 import os
+import re
 
 
 def read_logvol(logvol_filename):
@@ -51,7 +52,10 @@ def construct_doc_term_matrix(tok_folders, indices):
                 continue
             tokfile_name = tokfile_list[j]
             with open(tok_folder + "/" + tokfile_name) as tokfile:
-                tm_tdm.add_doc(tokfile.readline())
+                line = tokfile.readline()
+                # in the origianl data, # refers to numbers
+                line = re.sub('[#]', 'number', line)
+                tm_tdm.add_doc(line)
                 document_count += 1
                 document_last_count += 1
     np_tdm = 0 
@@ -113,3 +117,71 @@ def random_select_docs_by_proportion(tok_folder, proportion):
     n = len(tokfile_list)
     indices = np.random.choice(n, int(n*proportion), replace=False)
     return indices
+
+def generateDataForHmmLDA(pred_year, num_prev_year, indices):
+    '''
+    generate the data for HMM LDA with the format the library uses.
+    We use indices here since this method is written after the LDA data is generated,
+    and we want to save time, so we re-use the indices from previous saved data
+    :param pred_year:
+    :param num_prev_year:
+    :param indices:
+    :return:
+    '''
+    tok_folders = []
+    for year in range(pred_year - num_prev_year, pred_year + 1):
+        str_year = "../data/" + str(year)
+        tok_folders.append(str_year + ".tok")
+
+    document_count = 0
+    document_last_count = 0
+    corpus = []
+    for i in range(len(tok_folders)):
+        tok_folder = tok_folders[i]
+        tokfile_list = os.listdir(tok_folder)
+        tokfile_list.sort()
+        document_last_count = 0
+        index = indices[i]
+        for j in range(len(tokfile_list)):
+            if j not in index:
+                continue
+            tokfile_name = tokfile_list[j]
+            corpus.append([])
+            with open(tok_folder + "/" + tokfile_name) as tokfile:
+                line = tokfile.readline()
+                # in the origianl data, # refers to numbers
+                line = re.sub('[#]', 'number', line)
+                corpus[-1].append(line.split())
+                document_count += 1
+                document_last_count += 1
+
+
+    tmp_corpus = list()
+    voca_dic = dict()
+    voca = list()
+    for doc in corpus:
+        tmp_doc = list()
+        for sent in doc:
+            tmp_sent = list()
+            for word in sent:
+                tmp_sent.append(word)
+                if word not in voca_dic:
+                    voca_dic[word] = len(voca_dic)
+                    voca.append(word)
+            if len(tmp_sent) > 0:
+                tmp_doc.append(tmp_sent)
+        if len(tmp_doc) > 0:
+            tmp_corpus.append(tmp_doc)
+
+    # convert token list to word index list
+    corpus = list()
+    for doc in tmp_corpus:
+        new_doc = list()
+        for sent in doc:
+            new_sent = list()
+            for word in sent:
+                new_sent.append(voca_dic[word])
+            new_doc.append(new_sent)
+        corpus.append(new_doc)
+
+    return np.array(voca), corpus, document_last_count

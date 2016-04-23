@@ -3,6 +3,14 @@ __pycache__/
 *.py[cod]
 *.swp
 
+# Data file
+*.pickle
+*.npz
+*.npz.zip
+
+# Log file
+logs/
+
 # C extensions
 *.so
 
