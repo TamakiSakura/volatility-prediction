@@ -5,6 +5,7 @@ import pickle
 import time
 from sklearn.preprocessing import scale
 from ptm import HMM_LDA
+from ptm.utils import get_top_words
 
 # os.chdir('/Users/hengweiguo/Documents/repo/volatility-prediction/src')
 #
@@ -40,10 +41,11 @@ withextra = 0
 test_differ = 1
 
 lda_test = 0
+hmm_lda_test = 0
 standard_test = 1
 optimize = 1
 
-npzfile = np.load('train_test_data_01.npz')
+npzfile = np.load('train_test_data_001.npz')
 X_train_extra = npzfile['X_train_extra']
 X_train = npzfile['X_train'] # doc term mat
 Y_train = npzfile['Y_train'] # doc term mat
@@ -52,19 +54,19 @@ X_test = npzfile['X_test']
 Y_test = npzfile['Y_test']
 indices = npzfile['indices']
 
-npzfile = np.load('lda_data_01_20topics.npz')
+npzfile = np.load('lda_data_001_20topics.npz')
 X_train_lda = npzfile['X_train_lda']
 X_test_lda = npzfile['X_test_lda']
 
-#with open('vocab_02.pickle') as f:
-#    vocab= pickle.load(f)
-    
-# with open('lda_model_01_20topics.pickle') as f:
-#    lda_model= pickle.load(f)[0]
+# with open('vocab_001.pickle') as f:
+#     vocab= pickle.load(f)
+#
+# with open('lda_model_001_20topics.pickle') as f:
+#     lda_model= pickle.load(f)[0]
 
 
 # # print the lda topics
-# n_top_words = 12
+# n_top_words = 3
 # topic_word = lda_model.topic_word_
 # for i, topic_dist in enumerate(topic_word):
 #     topic_words = np.array(vocab).T[np.argsort(topic_dist)][:-(n_top_words+1):-1]
@@ -72,13 +74,13 @@ X_test_lda = npzfile['X_test_lda']
 #     topic_words = [item for sublist in topic_words for item in sublist if item not in ['and', 'in', 'the', 'of', 'a', 'to', 'is', 'we', 'that', 'for']]
 #     print('Topic {}: {}'.format(i, ' '.join(topic_words)))
 
-# hmm_LDA_vocab, hmm_lda_corpus, test_count = generateDataForHmmLDA(2006, 2, indices)
-# hmm_lda_X_train = hmm_lda_corpus[:-test_count]
-# hmm_LDA_X_test = hmm_lda_corpus[-test_count:]
+hmm_lda_vocab, hmm_lda_corpus, test_count = generateDataForHmmLDA(2006, 2, indices)
+hmm_lda_X_train = hmm_lda_corpus[:-test_count] # input to hmm lda reduction
+hmm_lda_X_test = hmm_lda_corpus[-test_count:]
 #
 # # train hmm lda
 # n_docs = len(hmm_lda_X_train)
-# n_voca = len(hmm_LDA_vocab)
+# n_voca = len(hmm_lda_vocab)
 # n_topic = 20
 # n_class = 20
 # max_iter = 20
@@ -86,20 +88,42 @@ X_test_lda = npzfile['X_test_lda']
 # beta = 0.01
 # gamma = 0.1
 # eta = 0.1
-# model = HMM_LDA(n_docs, n_voca, n_topic, n_class, alpha=alpha, beta=beta, gamma=gamma, eta=eta, verbose=True)
-# model.fit(hmm_lda_X_train, max_iter=max_iter)
+# hmm_lda_model = HMM_LDA(n_docs, n_voca, n_topic, n_class, alpha=alpha, beta=beta, gamma=gamma, eta=eta, verbose=True)
+# hmm_lda_model.fit(hmm_lda_X_train, max_iter=max_iter)
+# hmm_lda_test_model = hmm_lda_model.transform(hmm_lda_X_test, max_iter=max_iter)
+#
+# X_train_hmm_lda = hmm_lda_model.DT / hmm_lda_model.DT.sum(axis=1)[:,None]
+# X_test_hmm_lda = hmm_lda_test_model.DT / hmm_lda_test_model.DT.sum(axis=1)[:,None]
 #
 # with open('hmm_lda_001_20topics_20iters.pickle', 'w') as f:
-#     pickle.dump([hmm_LDA_vocab, hmm_lda_corpus, hmm_lda_X_train, hmm_LDA_X_test, model], f)
+#     pickle.dump([hmm_lda_vocab, hmm_lda_corpus, hmm_lda_X_train, hmm_lda_X_test, hmm_lda_model, hmm_lda_test_model, X_train_hmm_lda, X_test_hmm_lda], f)
 
-#with open('hmm_lda_1_20topics_20iters.pickle') as f:
-#    tmpData = pickle.load(f)
-#    vocab_hmmlda = tmpData[0]
-#    corpus_hmmlda = tmpData[1]  # hmm_lda_X_train + hmm_LDA_X_test
-#    X_train_hmmlda = tmpData[2]
-#    X_test_hmmlda = tmpData[3]
-#    model = tmpData[4]
-#    del tmpData
+with open('hmm_lda_001_20topics_20iters.pickle') as f:
+   tmpData = pickle.load(f)
+   vocab_hmmlda = tmpData[0]
+   corpus_hmmlda = tmpData[1]  # hmm_lda_X_train + hmm_LDA_X_test
+   hmm_lda_X_train = tmpData[2]
+   hmm_lda_X_test = tmpData[3]
+   hmm_lda_model = tmpData[4]
+   hmm_lda_test_model = tmpData[5]
+   X_train_hmm_lda = tmpData[6]
+   X_test_hmm_lda = tmpData[7]
+   del tmpData
+
+
+
+
+# # print hmm lda topics
+# for ti in range(n_topic):
+#     top_words = get_top_words(hmm_lda_model.TW, vocab_hmmlda, ti, n_words=3)
+#     print('Topic', ti ,': ', ','.join(top_words))
+#
+#
+# # print hmm lda syntactic words
+# for ci in range(1, n_class):
+#     top_words = get_top_words(hmm_lda_model.CW, vocab_hmmlda, ci, n_words=10)
+#     print('Class', ci ,': ', ','.join(top_words))
+
 
 tfidf_train, tfidf_test = dtm_to_tfidf(X_train, X_test)
 #tfidf_train = 0
@@ -143,6 +167,10 @@ if withextra and do_extra_original:
 
     X_total_train_lsi = combine_extra_to_train(X_train_extra, X_train_lsi)
     X_total_test_lsi = combine_extra_to_train(X_test_extra, X_test_lsi)
+
+    X_total_train_hmm_lda= combine_extra_to_train(X_train_extra, X_train_hmm_lda)
+    X_total_test_hmm_lda = combine_extra_to_train(X_test_extra, X_test_hmm_lda)
+
 else:    
     X_total_train_tf = tf_train
     X_total_test_tf = tf_test
@@ -158,6 +186,9 @@ else:
 
     X_total_train_lsi = X_train_lsi
     X_total_test_lsi = X_test_lsi
+
+    X_total_train_hmm_lda= X_train_hmm_lda
+    X_total_test_hmm_lda = X_test_hmm_lda
 
 
 # Code for predicting difference
@@ -204,6 +235,39 @@ if lda_test:
                 print('=========================================')
                 del lda_model
 
+
+if hmm_lda_test:
+    n_topics = 20
+    max_iter = 100
+    for n_topics in [6, 15, 30, 50]:
+        for n_class in [6, 15, 30, 50]:
+
+            t0 = time.time()
+            # train hmm lda
+            n_docs = len(hmm_lda_X_train)
+            n_voca = len(hmm_lda_vocab)
+            alpha = 0.01
+            beta = 0.01
+            gamma = 0.01
+            eta = 0.01
+            hmm_lda_model = HMM_LDA(n_docs, n_voca, n_topics, n_class, alpha=alpha, beta=beta, gamma=gamma, eta=eta, verbose=False)
+            hmm_lda_model.fit(hmm_lda_X_train, max_iter=max_iter)
+            hmm_lda_test_model = hmm_lda_model.transform(hmm_lda_X_test, max_iter=max_iter)
+
+            X_total_train_hmm_lda = hmm_lda_model.DT / hmm_lda_model.DT.sum(axis=1)[:,None]
+            X_total_test_hmm_lda = hmm_lda_test_model.DT / hmm_lda_test_model.DT.sum(axis=1)[:,None]
+
+            t1 = time.time()
+            print('hmm_lda takes time: ' + str(t1 - t0))
+            for degree in [1,2,3]:
+                mse_V_hmm_lda = involk_svr(X_total_train_hmm_lda, Y_train, X_total_test_hmm_lda, Y_test, degree=degree)
+                print('mse_V_hmm_lda: ' + str(mse_V_hmm_lda))
+                print('n_topics = ' + str(n_topics))
+                print('n_classes  = ' + str(n_class))
+                print('degree  = ' + str(degree))
+                print('=========================================')
+            del hmm_lda_model, hmm_lda_test_model
+
 # Test All
 
 def do_svr(name, X_train, Y_train, X_test, Y_test, optimize, degree):
@@ -218,6 +282,7 @@ if standard_test:
     do_svr('lda', X_total_train_lda, Y_train, X_total_test_lda, Y_test, optimize, 2)
     do_svr('lsi', X_total_train_lsi, Y_train, X_total_test_lsi, Y_test, optimize, 2)
     do_svr('tfidf', X_total_train_tfidf, Y_train, X_total_test_tfidf, Y_test, optimize, 1)
+    do_svr('hmm_lda', X_total_train_hmm_lda, Y_train, X_total_test_hmm_lda, Y_test, optimize, 2)
     
     if do_extra_original: 
         do_svr('tf', X_total_train_tf, Y_train, X_total_test_tf, Y_test, optimize, 1)

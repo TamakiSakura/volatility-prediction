@@ -45,9 +45,7 @@ class HMM_LDA(BaseGibbsParamTopicModel):
         self.word_topic = list()
 
     def fit(self, docs, max_iter=100):
-        print('init...')
         self.random_init(docs)
-        print('gibbs sampling...')
         self.gibbs_sampling(docs, max_iter)
 
     # randomly initialize 
