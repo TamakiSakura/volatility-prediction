@@ -116,6 +116,7 @@ def random_select_docs_by_proportion(tok_folder, proportion):
     tokfile_list = os.listdir(tok_folder)
     n = len(tokfile_list)
     indices = np.random.choice(n, int(n*proportion), replace=False)
+    indices.sort()
     return indices
 
 def generateDataForHmmLDA(pred_year, num_prev_year, indices):
