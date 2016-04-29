@@ -50,8 +50,8 @@ def dtm_to_tfidf(X_train, X_test):
 def dtm_to_log1p(X_train, X_test):
     return np.log(X_train + 1), np.log(X_test + 1)
 
-def involk_svr(X_total_train, Y_train, X_total_test, Y_test, C=math.pow(2,-10), tol=1e-5, epsilon=0.1, degree=1, gamma=1e-3):
-    svr_poly = SVR(kernel='poly', C=C,epsilon=epsilon, degree=degree, gamma=gamma, tol=tol, max_iter=10000,verbose=True)
+def involk_svr(X_total_train, Y_train, X_total_test, Y_test, C=math.pow(2,-10), tol=1e-5, epsilon=0.1, degree=1, gamma=1e-8):
+    svr_poly = SVR(kernel='poly', C=C,epsilon=epsilon, degree=degree, gamma=gamma, tol=tol)
     svr_poly.fit(X_total_train, Y_train)
     result = svr_poly.predict(X_total_test)
     return metrics.mean_squared_error(result, Y_test)
@@ -84,11 +84,11 @@ def optimize_svr(X_total_train, Y_train, X_total_test, Y_test, n_iter_search=30)
     '''    
     best_mse = -1
     best_param = {}
-    for C in [10000,1e5,1e6, 1000]:
-        for tol in [1e-5]:    
-            for epsilon in [0.1, 0.2,0.5]:
-                for degree in [1, 2]:
-                    for gamma in [1e-5,1e-6, 1e-7]:
+    for C in [1e-4, 1e-7, 1e-10]:
+        for tol in [1e-5, 1e-3]:
+            for epsilon in [0.1, 0.5]:
+                for degree in [1, 2, 3]:
+                    for gamma in [1e-8, 1e-4, 0.1]:
                         mse = involk_svr(X_total_train, Y_train, X_total_test, Y_test, C, tol, epsilon, degree, gamma)
                         if mse < best_mse or best_mse == -1:
                             best_mse = mse
@@ -98,3 +98,4 @@ def optimize_svr(X_total_train, Y_train, X_total_test, Y_test, n_iter_search=30)
                             best_param['degree'] = degree
                             best_param['gamma'] = gamma
     return best_mse, best_param
+

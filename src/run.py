@@ -7,9 +7,9 @@ from sklearn.preprocessing import scale
 from ptm import HMM_LDA
 from ptm.utils import get_top_words
 
-os.chdir('/Users/hengweiguo/Documents/repo/volatility-prediction/src')
-
-
+# os.chdir('/Users/hengweiguo/Documents/repo/volatility-prediction/src')
+#
+# 
 # # X_train and X_test are doc-term matrices
 # # X_train_extra and X_test_extra are v-12 volatilities
 # # Y's are labels
