@@ -85,7 +85,7 @@ def optimize_svr(X_total_train, Y_train, X_total_test, Y_test, n_iter_search=30)
     best_mse = -1
     best_param = {}
     for C in [1e-4, 1e-7, 1e-10]:
-        for tol in [1e-5, 1e-3]:    
+        for tol in [1e-5, 1e-3]:
             for epsilon in [0.1, 0.5]:
                 for degree in [1, 2, 3]:
                     for gamma in [1e-8, 1e-4, 0.1]:

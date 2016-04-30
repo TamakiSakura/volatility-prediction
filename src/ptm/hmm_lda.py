@@ -9,6 +9,7 @@ from scipy.special import gammaln
 
 from .formatted_logger import formatted_logger
 from .base import BaseGibbsParamTopicModel
+# import gibbs_sampling as gs
 
 logger = formatted_logger('HMM_LDA')
 
@@ -46,6 +47,7 @@ class HMM_LDA(BaseGibbsParamTopicModel):
 
     def fit(self, docs, max_iter=100):
         self.random_init(docs)
+        print('start gibbs sampling...')
         self.gibbs_sampling(docs, max_iter)
 
     # randomly initialize 
@@ -94,6 +96,17 @@ class HMM_LDA(BaseGibbsParamTopicModel):
             self.word_topic.append(doc_topic)
 
     def gibbs_sampling(self, docs, max_iter):
+
+        # tic = time.time()
+        # self.CW = self.CW.astype(np.intc)
+        # self.sum_C = self.sum_C.astype(np.intc)
+        # self.T = self.T.astype(np.intc)
+        # self.sum_T = self.sum_T.astype(np.intc)
+        # self.TW = self.TW.astype(np.intc)
+        # self.DT = self.DT.astype(np.intc)
+        #
+        #
+        # gs.gibbs_sampling(docs, max_iter,self.word_topic,self.word_class,self.n_class,self.CW,self.sum_C,self.T,self.sum_T,self.TW,self.DT)
 
         for iter in xrange(max_iter):
             tic = time.time()
@@ -165,6 +178,11 @@ class HMM_LDA(BaseGibbsParamTopicModel):
                 ll = self.log_likelihood()
                 print('[ITER] ' + str(iter) + ',\telapsed time: ' + str( time.time() - tic) + '\tlog-likelihood: ' + str(ll))
                 logger.info('[ITER] %d,\telapsed time: %.2f\tlog-likelihood:%.2f', iter, time.time() - tic, ll)
+
+        # if self.verbose:
+        #     ll = self.log_likelihood()
+        #     print(',\telapsed time: ' + str( time.time() - tic) + '\tlog-likelihood: ' + str(ll))
+        #     logger.info('elapsed time: %.2f\tlog-likelihood:%.2f', time.time() - tic, ll)
 
 
     def transform(self, docs, max_iter):
