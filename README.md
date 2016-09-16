@@ -1,6 +1,6 @@
 Volatility Prediction
 ==========
-Work In Progress....
+Everything is written in Final\_Report.pdf, if you're interested!
 
 Dependencies
 -----
